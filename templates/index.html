@@ -6,6 +6,17 @@
 
 {% block main %}
 <h3>Your Favourite Wallpapers and Profile pics</h3>
-<img src="https://pbs.twimg.com/media/GPOu0D4WcAAk_o4?format=png&name=900x900" class="responsive-img">
-<p>Image Description</p>
+{% for image in images %}
+<img src="{{ image.url | urlencode }}" class="responsive-img">
+{% endfor %}
+<!-- <p>Image Description</p> -->
+<form action="/" method="post" enctype="multipart/form-data">
+    <div>
+        <label for="formFileLg" class="form-label">Large file input example</label>
+        <input class="form-control form-control-lg" id="formFileLg" type="file" name="image">
+    </div>
+    <div style="padding: 20px">
+        <button class="btn btn-outline-success" type="submit">Upload</button>
+    </div>
+</form>
 {% endblock %}

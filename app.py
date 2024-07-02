@@ -1,7 +1,7 @@
 import os
 import json
 from contextlib import contextmanager
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 
 from flask import Flask, flash, redirect, render_template, request, session, jsonify, url_for
 from flask_session import Session
@@ -9,6 +9,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 import cloudinary
 import cloudinary.uploader
+import cloudinary.api
 
 import datetime
 
@@ -19,12 +20,19 @@ from helpers import login_required, check_password_strength_basic, apology
 app = Flask(__name__)
 
 # Load environment variables from the .env file
-load_dotenv()
+#load_dotenv()
 
 
 # Get the secret key from an environment variable
 #app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 app.config['SECRET_KEY'] = 'trial-secret-key-123'
+
+
+cloudinary.config(
+    cloud_name= 'dwi054oye',
+    api_key= os.getenv("CLOUDINARY_API_KEY"),
+    api_secret= os.getenv("CLOUDINARY_API_SECRET")
+)
 
 
 @app.after_request
@@ -53,9 +61,40 @@ def get_db_connection():
 def index():
     user_id = session["user_id"]
     if request.method == "POST":
-        ...
+        image = request.files.get("image")
+
+        if not image:
+            return apology("Please add image", 403)
+
+        # Upload image to Cloudinary
+        upload_result = cloudinary.uploader.upload(image)
+        image_url = upload_result['url']
+
+        with get_db_connection() as db:
+            try:
+                db.execute("BEGIN")
+                db.execute(
+                    """
+                    INSERT INTO wallpapers (user_id, url)
+                    VALUES (?, ?)
+                    """,
+                    (user_id, image_url)
+                )
+                db.execute("COMMIT")
+            except Exception as e:
+                db.execute("ROLLBACK")
+                return apology(f"An error occured {str(e)}")
+
     else:
-        return render_template("index.html")
+        with get_db_connection() as db:
+            query = "SELECT * FROM wallpapers WHERE user_id = ?"
+            params = (user_id,)
+            rows = db.execute(query, params)
+
+            column_names = [desc[0] for desc in db.execute(query, params).description]
+            images = [dict(zip(column_names, rows)) for row in rows]
+
+        return render_template("index.html", images=images)
 
 
 @app.route("/login", methods = ["GET", "POST"])
@@ -146,7 +185,7 @@ def signup():
                 db.execute("BEGIN")
                 db.execute(
                     """
-                    INSERT INTO users (username, password, email, display_name)
+                    INSERT INTO users (username, password, display_name)
                     VALUES (?, ?, ?)
                     """,
                     (username, hash, display_name)
