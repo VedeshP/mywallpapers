@@ -84,16 +84,17 @@ def index():
             except Exception as e:
                 db.execute("ROLLBACK")
                 return apology(f"An error occured {str(e)}")
-
+        return redirect(url_for('index'))
     else:
         with get_db_connection() as db:
             query = "SELECT * FROM wallpapers WHERE user_id = ?"
             params = (user_id,)
-            rows = db.execute(query, params)
+            rows = db.execute(query, params).fetchall()
 
             column_names = [desc[0] for desc in db.execute(query, params).description]
-            images = [dict(zip(column_names, rows)) for row in rows]
+            images = [dict(zip(column_names, row)) for row in rows]
 
+        #return jsonify(images)
         return render_template("index.html", images=images)
 
 
