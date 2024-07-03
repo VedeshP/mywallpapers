@@ -4,6 +4,7 @@ click==8.1.7
 cloudinary==1.40.0
 Flask==3.0.3
 Flask-Session==0.8.0
+gunicorn==22.0.0
 itsdangerous==2.2.0
 lz4==4.3.3
 msgspec==0.18.6
