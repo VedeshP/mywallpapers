@@ -30,7 +30,7 @@ app.config['SECRET_KEY'] = 'trial-secret-key-123'
 
 
 cloudinary.config(
-    cloud_name= 'douykzbze',
+    cloud_name= 'dwi054oye',
     api_key= os.getenv("CLOUDINARY_API_KEY"),
     api_secret= os.getenv("CLOUDINARY_API_SECRET")
 )
