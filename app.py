@@ -1,7 +1,8 @@
 import os
 import json
 from contextlib import contextmanager
-#from dotenv import load_dotenv
+# for below pip install python-dotenv
+from dotenv import load_dotenv
 
 from flask import Flask, flash, redirect, render_template, request, session, jsonify, url_for
 from flask_session import Session
@@ -20,7 +21,7 @@ from helpers import login_required, check_password_strength_basic, apology
 app = Flask(__name__)
 
 # Load environment variables from the .env file
-#load_dotenv()
+load_dotenv()
 
 
 # Get the secret key from an environment variable
